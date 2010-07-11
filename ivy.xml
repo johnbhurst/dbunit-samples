@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-  <info organisation="org.dbunit" module="oracle-sample">
+  <info organisation="org.dbunit" module="dbunit-samples">
     <description>
       DbUnit sample -- currently for Oracle
     </description>
