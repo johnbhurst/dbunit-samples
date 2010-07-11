@@ -1,0 +1,144 @@
+<project default="usage" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <property file="build.local.properties"/>
+  <property file="build.properties"/>
+
+  <path id="classpath.compile">
+    <fileset dir="lib/ivy/compile"/>
+  </path>
+  <path id="classpath.runtime">
+    <fileset dir="lib/ivy/runtime"/>
+  </path>
+  <path id="classpath.test">
+    <fileset dir="lib/ivy/test"/>
+  </path>
+  <path id="classpath.system">
+    <fileset dir="lib/system"/>
+  </path>
+  <path id="classpath.ant">
+    <fileset dir="lib/ivy/ant"/>
+  </path>
+
+  <!-- Ivy bootstrap: see http://www.draconianoverlord.com/2009/04/23/ivy-is-useful.html -->
+  <available property="ivy.installed" file="${ivy.home}/${ivy.jar.name}"/>
+
+  <target name="ivy.install" unless="ivy.installed">
+    <mkdir dir="${ivy.home}"/>
+    <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.jar.version}/${ivy.jar.name}"
+         dest="${ivy.home}/${ivy.jar.name}"/>
+  </target>
+
+  <target name="ivy.bootstrap" depends="ivy.install" unless="ivy.bootstrapped">
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
+             classpath="${ivy.home}/${ivy.jar.name}"/>
+    <property name="ivy.bootstrapped" value="true"/> <!-- Avoid re-bootstrapping because it causes classloader issues. -->
+  </target>
+
+  <target name="ivy-retrieve" depends="ivy.bootstrap">
+    <ivy:retrieve sync="true" conf="${ivy.configurations}"/>
+  </target>
+
+  <available property="ojdbc.installed" file="${oracle.jar}"/>
+
+  <target name="check-ojdbc" unless="ojdbc.installed">
+    <fail message="Download Oracle ojdbc JAR from http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/htdocs/jdbc_112010.html, copy to ${oracle.jar}."/>
+  </target>
+
+  <macrodef name="run-sql">
+    <attribute name="userid" default="${db.userid}"/>
+    <attribute name="password" default="${db.password}"/>
+    <attribute name="file"/>
+    <sequential>
+      <sql driver="${db.driver}"
+           url="${db.url}"
+           userid="@{userid}"
+           password="@{password}"
+           delimiter=";">
+        <classpath refid="classpath.system"/>
+        <fileset dir="src/main/sql/ddl" includes="@{file}"/>
+      </sql>
+    </sequential>
+  </macrodef>
+
+  <target name="create-schema" depends="check-ojdbc"
+          description="Create 'birt' user/schema in database.">
+    <run-sql userid="${db.system.userid}" password="${db.system.password}" file="create_schema.sql"/>
+  </target>
+
+  <target name="drop-schema" depends="check-ojdbc"
+          description="Drop 'birt' user/schema from database.">
+    <run-sql userid="${db.system.userid}" password="${db.system.password}" file="drop_schema.sql"/>
+  </target>
+
+  <target name="create-classicmodels" depends="check-ojdbc"
+          description="Create tables for classicmodels application.">
+    <run-sql file="create_classicmodels.sql"/>
+  </target>
+
+  <target name="load-classicmodels" depends="check-ojdbc"
+          description="Load data via SQL INSERT script.">
+    <run-sql file="load_classicmodels.sql"/>
+  </target>
+
+  <target name="taskdef-dbunit" depends="ivy-retrieve">
+    <taskdef name="dbunit" classname="org.dbunit.ant.DbUnitTask">
+      <classpath refid="classpath.ant"/>
+    </taskdef>
+  </target>
+
+  <macrodef name="run-dbunit">
+    <element name="commands" implicit="true"/>
+    <sequential>
+      <dbunit driver="${db.driver}"
+              url="${db.url}"
+              userid="${db.userid}"
+              password="${db.password}"
+              schema="${db.schema}">
+        <classpath refid="classpath.ant"/>
+        <classpath refid="classpath.system"/>
+        <dbconfig>
+          <property name="datatypeFactory" value="org.dbunit.ext.oracle.Oracle10DataTypeFactory" />
+        </dbconfig>
+        <commands/>
+      </dbunit>
+    </sequential>
+  </macrodef>
+
+  <target name="dbunit-export" depends="check-ojdbc,taskdef-dbunit"
+          description="Export table contents to FlatXmlDataSet.">
+    <run-dbunit>
+      <export dest="data/dbunit-dataset.xml">
+        <table name="productlines"/>
+        <table name="products"/>
+        <table name="offices"/>
+        <table name="employees"/>
+        <table name="customers"/>
+        <table name="payments"/>
+        <table name="orders"/>
+        <table name="orderdetails"/>
+      </export>
+    </run-dbunit>
+  </target>
+
+  <target name="dbunit-import" depends="check-ojdbc,taskdef-dbunit"
+          description="Import table contents from FlatXmlDataSet.">
+    <run-dbunit>
+      <operation type="CLEAN_INSERT" src="data/dbunit-dataset.xml"/>
+    </run-dbunit>
+  </target>
+
+  <target name="zip-src" description="Create ZIP file of dbunit-oracle-sample project.">
+    <zip basedir="." file="dbunit-oracle-sample.zip">
+      <include name="build.*"/>
+      <include name="data/**"/>
+      <include name="lib/**"/>
+      <include name="src/**"/>
+    </zip>
+  </target>
+
+  <target name="usage">
+    <echo message="Run ant -p to see targets defined."/>
+  </target>
+
+</project>
+
