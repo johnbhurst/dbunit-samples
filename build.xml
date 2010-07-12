@@ -150,11 +150,6 @@
              target="${compile.target}">
         <body/>
       </javac>
-      <copy todir="@{destdir}">
-        <fileset dir="@{srcdir}">
-          <exclude name="**/*.java"/>
-        </fileset>
-      </copy>
     </sequential>
   </macrodef>
 
@@ -174,6 +169,9 @@
         <pathelement location="build/classes/main"/>
       </classpath>
     </run-javac>
+    <copy todir="build/classes/test">
+      <fileset dir="src/test/resources"/>
+    </copy>
   </target>
 
   <target name="test" depends="compile-test">
