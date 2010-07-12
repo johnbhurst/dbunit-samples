@@ -4,4 +4,6 @@
 *.vpwhist*
 *.vtg
 .idea
+build
 lib
+out
