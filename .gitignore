@@ -3,6 +3,7 @@
 *.vpw
 *.vpwhist*
 *.vtg
+.gradle
 .idea
 build
 lib

@@ -1,0 +1,40 @@
+
+buildscript {
+  repositories {
+    mavenRepo urls: "http://gradle.artifactoryonline.com/gradle/plugins"
+  }
+  dependencies {
+    classpath "org.gradle.plugins:gradle-idea-plugin:0.2"
+  }
+}
+
+apply plugin: "java"
+apply plugin: "org.gradle.idea"
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile group: "commons-lang", name: "commons-lang", version: "2.5"
+  compile group: "org.springframework", name: "spring-jdbc", version: "3.0.0.RELEASE"
+  //<!-- http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/htdocs/jdbc_112010.html -->
+  testCompile files("lib/system/ojdbc6-11.2.0.1.0.jar")
+  testCompile group: "junit",  name: "junit", version: "4.8.1"
+  testCompile group: "org.dbunit", name: "dbunit", version: "2.4.7"
+  testCompile group: "org.slf4j", name: "slf4j-simple", version: "1.5.6"
+  // We shouldn't need these extra Spring dependencies!  Something's up with Gradle transitive dependencies...
+  testCompile group: "org.springframework", name: "spring-tx", version: "3.0.0.RELEASE"
+  testCompile group: "org.springframework", name: "spring-beans", version: "3.0.0.RELEASE"
+}
+
+test {
+  systemProperties "db.driver": "oracle.jdbc.OracleDriver"
+  systemProperties "db.url": "jdbc:oracle:thin:@oracle_on_vmware:1521:XE"
+  systemProperties "db.userid": "birt"
+  systemProperties "db.password": "birt"
+  systemProperties "db.schema": "BIRT"
+  systemProperties "db.system.userid": "system"
+  systemProperties "db.system.password": "manager"
+}
+
