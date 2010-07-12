@@ -41,7 +41,9 @@ public class AbstractDbUnitTestCase {
 
   @After
   public void shutdownConnections() throws SQLException {
-    this.databaseConnection.close();
+    if (databaseConnection != null) {
+      databaseConnection.close();
+    }
   }
 
   public DataSource getDataSource() {
