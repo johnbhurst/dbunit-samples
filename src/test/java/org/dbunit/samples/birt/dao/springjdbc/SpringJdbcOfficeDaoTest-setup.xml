@@ -1,0 +1,5 @@
+<dataset>
+  <offices officeCode="AUCK" city="Auckland" phone="+64 9 555-4321" addressLine1="1 Viaduct Way" addressLine2="Auck Central" state="AUCK" country="New Zealand" postalCode="4321" territory="Oceana"/>
+  <employees/>
+  
+</dataset>

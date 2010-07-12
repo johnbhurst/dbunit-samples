@@ -127,6 +127,85 @@
     </run-dbunit>
   </target>
 
+  <target name="clean">
+    <delete dir="build"/>
+  </target>
+
+  <target name="prepare">
+    <mkdir dir="build/classes/main"/>
+    <mkdir dir="build/classes/test"/>
+    <mkdir dir="build/reports/junit"/>
+  </target>
+
+  <macrodef name="run-javac">
+    <attribute name="srcdir"/>
+    <attribute name="destdir"/>
+    <element name="body" implicit="true"/>
+    <sequential>
+      <javac srcdir="@{srcdir}"
+             destdir="@{destdir}"
+             debug="${compile.debug}"
+             optimize="${compile.optimize}"
+             source="${compile.source}"
+             target="${compile.target}">
+        <body/>
+      </javac>
+      <copy todir="@{destdir}">
+        <fileset dir="@{srcdir}">
+          <exclude name="**/*.java"/>
+        </fileset>
+      </copy>
+    </sequential>
+  </macrodef>
+
+  <target name="compile-main" depends="prepare">
+    <run-javac srcdir="src/main/java" destdir="build/classes/main">
+      <classpath>
+        <path refid="classpath.compile"/>
+      </classpath>
+    </run-javac>
+  </target>
+
+  <target name="compile-test" depends="compile-main">
+    <run-javac srcdir="src/test/java" destdir="build/classes/test">
+      <classpath>
+        <path refid="classpath.system"/>
+        <path refid="classpath.test"/>
+        <pathelement location="build/classes/main"/>
+      </classpath>
+    </run-javac>
+  </target>
+
+  <target name="test" depends="compile-test">
+    <junit
+      errorProperty="test.failed"
+      failureProperty="test.failed"
+      printsummary="${test.printsummary}"
+      haltonfailure="${test.haltonfailure}"
+      fork="true"
+      forkmode="once"
+      reloading="false"
+      dir="."
+      showoutput="${test.showoutput}">
+      <classpath path="build/classes/main"/>
+      <classpath path="build/classes/test"/>
+      <classpath refid="classpath.system"/>
+      <classpath refid="classpath.test"/>
+      <formatter type="brief" usefile="false"/>
+      <formatter type="xml"/>
+      <sysproperty key="db.driver" value="${db.driver}"/>
+      <sysproperty key="db.url" value="${db.url}"/>
+      <sysproperty key="db.userid" value="${db.userid}"/>
+      <sysproperty key="db.password" value="${db.password}"/>
+      <sysproperty key="db.schema" value="${db.schema}"/>
+      <batchtest todir="build/reports/junit">
+        <fileset dir="build/classes/test">
+          <include name="**/${test.class}.class"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
   <target name="zip-src" description="Create ZIP file of dbunit-oracle-sample project.">
     <zip basedir="." file="dbunit-oracle-sample.zip">
       <include name="build.*"/>
