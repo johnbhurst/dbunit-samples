@@ -8,6 +8,7 @@ import org.dbunit.Assertion;
 import org.dbunit.database.DatabaseDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.operation.DatabaseOperation;
+import org.dbunit.samples.AbstractDbUnitTestCase;
 import org.dbunit.samples.birt.domain.Office;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;

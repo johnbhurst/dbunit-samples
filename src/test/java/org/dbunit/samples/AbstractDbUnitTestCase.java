@@ -2,7 +2,7 @@
 // John Hurst (john.b.hurst@gmail.com)
 // 2010-07-12
 
-package org.dbunit.samples.birt.dao.springjdbc;
+package org.dbunit.samples;
 
 import javax.sql.DataSource;
 
@@ -15,7 +15,7 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.FlatXmlProducer;
-import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
+import org.dbunit.samples.xml.OracleXmlDataTypeFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.xml.sax.InputSource;
@@ -35,7 +35,7 @@ public class AbstractDbUnitTestCase {
     dataSource.setPassword(System.getProperty("db.password"));
     this.dataSource = dataSource;
     DatabaseConnection databaseConnection = new DatabaseConnection(getDataSource().getConnection());
-    databaseConnection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new Oracle10DataTypeFactory());
+    databaseConnection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new OracleXmlDataTypeFactory());
     this.databaseConnection = databaseConnection;
   }
 

@@ -75,6 +75,11 @@
     <run-sql file="create_classicmodels.sql"/>
   </target>
 
+  <target name="create-xml-table" depends="check-ojdbc"
+          description="Create xml_table for special XML test.">
+    <run-sql file="create_xml_table.sql"/>
+  </target>
+
   <target name="load-classicmodels" depends="check-ojdbc"
           description="Load data via SQL INSERT script.">
     <run-sql file="load_classicmodels.sql"/>

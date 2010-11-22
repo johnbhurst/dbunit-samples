@@ -1,0 +1,4 @@
+<dataset>
+  <xml_table id="1" data="&lt;document/&gt;"/>
+  <xml_table id="2" data="&lt;document a='A'&gt;&lt;row id='1' v='VAL'/&gt;&lt;row id='2' v='VAR'/&gt;&lt;/document&gt;"/>
+</dataset>
